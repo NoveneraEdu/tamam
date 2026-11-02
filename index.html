@@ -203,6 +203,7 @@ textarea.inp{resize:vertical;min-height:70px}
     <label class="field"><span>الباسورد</span><input class="inp" type="password" id="password" autocomplete="current-password" required dir="ltr"></label>
     <p class="err" id="loginErr"></p>
     <div class="actions"><button class="btn pri" type="submit" id="loginBtn">دخول</button></div>
+    <button class="linkbtn" type="button" id="forgotBtn">نسيت الباسورد؟</button>
   </form>
 </section>
 
@@ -756,6 +757,12 @@ $('#loginForm').addEventListener('submit', async e => {
   btn.disabled = false;
   if (error) { $('#loginErr').textContent = 'الإيميل أو الباسورد غلط'; return; }
   boot();
+});
+$('#forgotBtn').addEventListener('click', async () => {
+  const email = $('#email').value.trim();
+  if (!email) { $('#loginErr').textContent = 'اكتب الإيميل الأول'; return; }
+  const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname});
+  $('#loginErr').textContent = error ? 'مابعتش، استنى دقيقة وجرّب تاني' : 'بعتنالك رابط على الإيميل، افتحه من نفس الجهاز ده';
 });
 async function boot(){
   const {data:{session}} = await sb.auth.getSession();
