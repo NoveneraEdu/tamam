@@ -722,7 +722,8 @@ async function settingsSheet(){
     </form>
     <div class="field"><span>الشكل</span>${segHTML('theme', {auto:'زي الموبايل', light:'فاتح', dark:'غامق'}, theme)}</div>
     <p class="note">عشان الموبايل يفكّرك: افتح أي حاجة ليها ميعاد ودوس <b>ضيف للتقويم</b>، هتنزل في تقويمك بتنبيه قبلها بيوم وقبلها بساعة.</p>
-    <div class="actions"><button class="btn sec" id="logout" style="flex:1">خروج</button></div>`, async el => {
+    <div class="actions"><button class="btn sec" id="chpass" style="flex:1">غيّر الباسورد</button><button class="btn sec" id="logout" style="flex:1">خروج</button></div>`, async el => {
+    el.querySelector('#chpass').onclick = () => { closeSheet(); setTimeout(newPassSheet, 50); };
     wireSegs(el);
     el.querySelector('[data-seg="theme"]').addEventListener('click', () => { const t = segVal(el, 'theme'); lsSet(LS_THEME, t); applyTheme(t); });
     el.querySelector('#logout').onclick = async () => { await sb.auth.signOut(); try { localStorage.removeItem(LS_KEY); } catch(_) {} location.reload(); };
