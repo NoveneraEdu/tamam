@@ -764,6 +764,32 @@ async function boot(){
   const now = new Date();
   $('#todayLbl').textContent = `${DAYS[now.getDay()]}، ${monthFmt.format(now)}`;
   load();
+  if (recovering && !$('#pf')) newPassSheet();
+}
+/* password reset: the email link lands here with #...type=recovery */
+let recovering = /type=recovery/.test(location.hash);
+sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') { recovering = true; boot(); } });
+function newPassSheet(){
+  openSheet(`
+    <h3>باسورد جديد</h3>
+    <p class="sub">اكتب الباسورد الجديد. هو نفسه اللي هتدخل بيه سهم وتمام.</p>
+    <form id="pf">
+      <label class="field"><span>الباسورد الجديد</span><input class="inp" type="password" name="p1" minlength="8" required autocomplete="new-password" dir="ltr"></label>
+      <label class="field"><span>اكتبه تاني</span><input class="inp" type="password" name="p2" minlength="8" required autocomplete="new-password" dir="ltr"></label>
+      <p class="err" id="pErr"></p>
+      <div class="actions"><button class="btn pri" type="submit">حفظ</button></div>
+    </form>`, el => {
+    el.querySelector('[name=p1]').focus();
+    el.querySelector('#pf').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target;
+      if (f.p1.value !== f.p2.value) { $('#pErr').textContent = 'الاتنين مش زي بعض'; return; }
+      const {error} = await sb.auth.updateUser({password: f.p1.value});
+      if (error) { $('#pErr').textContent = 'ماتغيرش: ' + (error.message || 'جرّب تاني'); return; }
+      recovering = false; history.replaceState(null, '', location.pathname);
+      closeSheet(); toast('الباسورد اتغير ✓');
+    });
+  });
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !$('#appView').hidden) { render(); load(); } });
 addEventListener('online', () => !$('#appView').hidden && load());
